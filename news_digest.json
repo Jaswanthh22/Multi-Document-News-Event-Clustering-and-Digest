@@ -1,0 +1,319 @@
+[
+  {
+    "event_id": 1,
+    "article_count": 3,
+    "sources": [
+      "bbc",
+      "guardian",
+      "aljazeera"
+    ],
+    "headlines": [
+      "What's next after no deal at COP31 climate talks?",
+      "Cop31 climate talks break down as key deal rejected",
+      "Why has the COP31 climate summit failed to reach agreement?"
+    ],
+    "digest": "Negotiations broke down two days after they had been due to end. EU representative accuses some oil states of hijacking talks. Antalya pact invites countries to electrify their economies and calls for rich countries to provide finance to the poor.",
+    "source_summaries": [
+      {
+        "source": "bbc",
+        "headline": "What's next after no deal at COP31 climate talks?",
+        "summary": "Talks have been the longest-running in the summit's history. Negotiations broke down two days after they had been due to end. EU representative accuses some oil states of hijacking talks."
+      },
+      {
+        "source": "guardian",
+        "headline": "Cop31 climate talks break down as key deal rejected",
+        "summary": "The EU, the UK and allies in the developing world rejected what they called an unacceptable deal on the future of the climate. The proposed deal “failed to meet the moment’, said Ireland’s environment minister, Darragh O’Brien, speaking for the EU. The Antalya pact invites countries to electrify their economies and calls for rich countries to provide finance to the poor."
+      },
+      {
+        "source": "aljazeera",
+        "headline": "Why has the COP31 climate summit failed to reach agreement?",
+        "summary": "Fossil fuels are at the centre of deep division. The United Nations climate change conference in Turkiye has failed to reach an agreement."
+      }
+    ]
+  },
+  {
+    "event_id": 2,
+    "article_count": 3,
+    "sources": [
+      "bbc",
+      "aljazeera",
+      "toi"
+    ],
+    "headlines": [
+      "Explosion on Russian ship at Libya port caused by suspected drone attack, officials say",
+      "Second ship targeted in series of naval drone attacks off Libyan coast",
+      "Watch: Russian warship bursts into flames in suspected Ukraine drone attack in Libya"
+    ],
+    "digest": "The ship, identified as the Russian corvette Merkury, was docked at the port to refuel and take on supplies under a cooperation agreement. Satellite imagery shared by imagery provider Vantor showed that most of the vessel had capsized and sunk.",
+    "source_summaries": [
+      {
+        "source": "bbc",
+        "headline": "Explosion on Russian ship at Libya port caused by suspected drone attack, officials say",
+        "summary": "Explosion on Russian ship at Libya port caused by suspected drone attack, officials say. The explosion happened at dawn on Sunday, while the ship had stopped for fuel and supplies on its way back to Russia. The health ministry said it had received injured people from another vessel, a commercial ship, that was also targeted off the coast of Benghazi."
+      },
+      {
+        "source": "aljazeera",
+        "headline": "Second ship targeted in series of naval drone attacks off Libyan coast",
+        "summary": "Second ship targeted in series of naval drone attacks off Libyan coast. Libyan forces reportedly intercepted more than 20 naval drones. This follows a drone attack earlier in the day against a Russian ship."
+      },
+      {
+        "source": "toi",
+        "headline": "Watch: Russian warship bursts into flames in suspected Ukraine drone attack in Libya",
+        "summary": "The ship, identified as the Russian corvette Merkury, was docked at the port to refuel and take on supplies under a cooperation agreement. Satellite imagery shared by imagery provider Vantor showed that most of the vessel had capsized and sunk. The eastern-based Libyan administration said the fire had been brought under control and launched a joint investigation with Russia."
+      }
+    ]
+  },
+  {
+    "event_id": 3,
+    "article_count": 3,
+    "sources": [
+      "guardian"
+    ],
+    "headlines": [
+      "Fears grow that US will put Nobel-winning judge under sanctions after Myanmar genocide ruling",
+      "Myanmar ruling gives new relevance to genocide convention and is ‘full of messages’ for Israel",
+      "US reacts cautiously to Myanmar genocide ruling as EU praises ‘critical’ role of UN’s top court"
+    ],
+    "digest": "The US and Israel fear the final judgment may clarify how to establish a government’s intent to commit a genocide. China has raised concerns of judicial overreach. The EU hailed a “landmark” judgment from the ICJ.",
+    "source_summaries": [
+      {
+        "source": "guardian",
+        "headline": "Fears grow that US will put Nobel-winning judge under sanctions after Myanmar genocide ruling",
+        "summary": "Fears are growing that the US could impose sanctions on judges at the international court of justice. The court will rule on Thursday that the Myanmar government committed genocide against the Rohingya. The US and Israel fear the final judgment may clarify how to establish a government’s intent to commit a genocide."
+      },
+      {
+        "source": "guardian",
+        "headline": "Myanmar ruling gives new relevance to genocide convention and is ‘full of messages’ for Israel",
+        "summary": "Myanmar is first country in history to be found guilty of committing genocide. Ruling gives 1948 genocide convention new relevance in governing actions of nation states. The lengthy judgment will have been read particularly carefully by Israel, the only other country currently before the ICJ accused of genocide."
+      },
+      {
+        "source": "guardian",
+        "headline": "US reacts cautiously to Myanmar genocide ruling as EU praises ‘critical’ role of UN’s top court",
+        "summary": "The US has greeted with caution the world's highest court's ruling that Myanmar committed genocide against its Rohingya minority. China has raised concerns of judicial overreach. The EU hailed a “landmark” judgment from the ICJ, while the UK reaffirmed “full support” for the court and the international legal order. Australia called on Myanmar to comply fully with the judgment and its obligations under international law."
+      }
+    ]
+  },
+  {
+    "event_id": 4,
+    "article_count": 2,
+    "sources": [
+      "bbc",
+      "aljazeera"
+    ],
+    "headlines": [
+      "Boy, 7, pulled alive from rubble hours after Russian strike on Ukraine, rescuers say",
+      "Child rescued in Ukraine after Russian drone attack kills 10"
+    ],
+    "digest": "A 79-year-old woman was also rescued alive from the collapsed building. A strike on a private home in Bila Tserkva killed one more person and set the building ablaze.",
+    "source_summaries": [
+      {
+        "source": "bbc",
+        "headline": "Boy, 7, pulled alive from rubble hours after Russian strike on Ukraine, rescuers say",
+        "summary": "Boy, 7, pulled alive from rubble hours after Russian strike on Ukraine, rescuers say. A 79-year-old woman was also rescued alive from the collapsed building. A strike on a private home in Bila Tserkva killed one more person and set the building ablaze."
+      },
+      {
+        "source": "aljazeera",
+        "headline": "Child rescued in Ukraine after Russian drone attack kills 10",
+        "summary": "Child rescued in Ukraine after Russian drone attack kills 10. At least ten others were killed in the strike on a residential building."
+      }
+    ]
+  },
+  {
+    "event_id": 5,
+    "article_count": 2,
+    "sources": [
+      "bbc",
+      "guardian"
+    ],
+    "headlines": [
+      "Three killed and dozens missing after fire at Indonesian factory",
+      "Fire at confectionery factory in Indonesia leaves at least three dead and dozens missing"
+    ],
+    "digest": "Firefighters were still tackling some flames on Sunday, while rescuers searched for around 36 missing. The Fonusa Agung Mulia factory caught fire on Saturday afternoon. The cause of the incident is still under investigation.",
+    "source_summaries": [
+      {
+        "source": "bbc",
+        "headline": "Three killed and dozens missing after fire at Indonesian factory",
+        "summary": "Three killed and dozens missing after fire at Indonesian factory. At least three people have been killed after a fire at a confectionery factory in western Java on Saturday. Firefighters were still tackling some flames on Sunday, while rescuers searched for around 36 missing."
+      },
+      {
+        "source": "guardian",
+        "headline": "Fire at confectionery factory in Indonesia leaves at least three dead and dozens missing",
+        "summary": "A fire at a confectionery factory west of Jakarta has killed three people. 36 people are still missing, an Indonesian rescue official says. The Fonusa Agung Mulia factory caught fire on Saturday afternoon. The cause of the incident is still under investigation."
+      }
+    ]
+  },
+  {
+    "event_id": 6,
+    "article_count": 2,
+    "sources": [
+      "bbc",
+      "guardian"
+    ],
+    "headlines": [
+      "South Korea education minister resigns over exam cheating scandal",
+      "South Korean minister quits after AI cheating scandal engulfs university exams"
+    ],
+    "digest": "Education Minister Choi Kyo-jin resigns over exam cheating scandal. He said he took full responsibility for the confusion caused by last-minute measures aimed at stopping AI-assisted cheating. Top scorer in a national tax accountancy exam admitted using a mini-camera, mobile phone and AI tools.",
+    "source_summaries": [
+      {
+        "source": "bbc",
+        "headline": "South Korea education minister resigns over exam cheating scandal",
+        "summary": "South Korea's Education Minister Choi Kyo-jin resigns over exam cheating scandal. He said he took full responsibility for the confusion caused by last-minute measures aimed at stopping AI-assisted cheating during Thursday's annual college entrance exam. A week ago, the top scorer in the national tax accountancy exam admitted using a mini-camera, mobile phone and AI tools."
+      },
+      {
+        "source": "guardian",
+        "headline": "South Korean minister quits after AI cheating scandal engulfs university exams",
+        "summary": "South Korea gripped by fears of AI-assisted exam cheating since last Sunday. Top scorer in a national tax accountancy exam confessed to using a miniature camera and smartphone to achieve a near-perfect score. The cheat’s confession sent officials scrambling to roll out a slew of preventive measures."
+      }
+    ]
+  },
+  {
+    "event_id": 7,
+    "article_count": 2,
+    "sources": [
+      "bbc",
+      "aljazeera"
+    ],
+    "headlines": [
+      "Democrats win largest House majority since 1992 after flipping North Carolina seat",
+      "Democrats win largest House majority since 1992 with North Carolina seat"
+    ],
+    "digest": "At least 258 US House seats are now under Democratic control, with four more midterm races yet to be decided. The party has now picked up about 47 House seats. Currently, in the outgoing Congress, Democrats hold 214 seats.",
+    "source_summaries": [
+      {
+        "source": "bbc",
+        "headline": "Democrats win largest House majority since 1992 after flipping North Carolina seat",
+        "summary": "Democrats win largest House majority since 1992 after flipping North Carolina seat. The party has now won at least 258 House seats in the midterms compared to Republicans, who hold at least 173 seats, with four races still yet to be called."
+      },
+      {
+        "source": "aljazeera",
+        "headline": "Democrats win largest House majority since 1992 with North Carolina seat",
+        "summary": "Democrats win largest House majority since 1992 with North Carolina seat. At least 258 US House seats are now under Democratic control, with four more midterm races yet to be decided. The party has now picked up about 47 House seats. Currently, in the outgoing Congress, Democrats hold 214 seats."
+      }
+    ]
+  },
+  {
+    "event_id": 8,
+    "article_count": 2,
+    "sources": [
+      "bbc",
+      "aljazeera"
+    ],
+    "headlines": [
+      "Denmark accuses Russia of plotting to assassinate US-Ukrainian rapper",
+      "Poland says Russia tried to assassinate Ukrainian rapper twice"
+    ],
+    "digest": "Denmark accuses Russia of plotting to assassinate US-Ukrainian rapper. Two people were charged with attempted murder and assisting a foreign intelligence service, and pleaded not guilty. Russia's embassy in Denmark called the allegations \"unsubstantiated\"",
+    "source_summaries": [
+      {
+        "source": "bbc",
+        "headline": "Denmark accuses Russia of plotting to assassinate US-Ukrainian rapper",
+        "summary": "Denmark accuses Russia of plotting to assassinate US-Ukrainian rapper. Two people were charged with attempted murder and assisting a foreign intelligence service, and pleaded not guilty. Russia's embassy in Denmark called the allegations \"unsubstantiated\""
+      },
+      {
+        "source": "aljazeera",
+        "headline": "Poland says Russia tried to assassinate Ukrainian rapper twice",
+        "summary": "Poland says Russia tried to assassinate Ukrainian rapper twice. Polish confirmation comes after Copenhagen reveals alleged Russian plot to kill US-Ukrainian citizen on Danish soil."
+      }
+    ]
+  },
+  {
+    "event_id": 9,
+    "article_count": 2,
+    "sources": [
+      "guardian",
+      "aljazeera"
+    ],
+    "headlines": [
+      "US intelligence chief says he trusts Trump’s description of Putin as ‘my friend’",
+      "US intelligence chief defends Trump’s comments calling Putin his ‘friend’"
+    ],
+    "digest": "Jay Clayton, the US director of national intelligence, said he trusts Donald Trump ‘completely’ Clayton made the remarks on Sunday, where he was pressed during media appearances on Trump’s warm characterization of the Russian president. Clayton also clarified that the US has not taken Russia's side in the Ukraine crisis.",
+    "source_summaries": [
+      {
+        "source": "guardian",
+        "headline": "US intelligence chief says he trusts Trump’s description of Putin as ‘my friend’",
+        "summary": "Jay Clayton, the US director of national intelligence, said he trusts Donald Trump “completely” after the US president called Vladimir Putin “a friend” Clayton made the remarks on Sunday, where he was pressed during media appearances on Trump’s warm characterization of the Russian president."
+      },
+      {
+        "source": "aljazeera",
+        "headline": "US intelligence chief defends Trump’s comments calling Putin his ‘friend’",
+        "summary": "US intelligence chief defends Trump’s comments calling Putin his ‘friend’ US Director of National Intelligence Jay Clayton says Trump's comments were ‘entirely appropriate’ in the context of the summit. Clayton also clarified that the US has not taken Russia's side in the Ukraine crisis."
+      }
+    ]
+  },
+  {
+    "event_id": 10,
+    "article_count": 2,
+    "sources": [
+      "guardian"
+    ],
+    "headlines": [
+      "When you see smoke, run: Rohingya who escaped Myanmar’s genocide tell their stories",
+      "‘Everyone struggled for this justice’: tears in court as Rohingya vindicated in Myanmar genocide ruling"
+    ],
+    "digest": "More than 700,000 Rohingya refugees arrived in Bangladesh in 2017. Many had escaped an attack on their own village, only to watch their relatives being killed in the villages where they had sought safety. Majority of Rohingya who arrived in 2017 remain in the refugee camps.",
+    "source_summaries": [
+      {
+        "source": "guardian",
+        "headline": "When you see smoke, run: Rohingya who escaped Myanmar’s genocide tell their stories",
+        "summary": "More than 700,000 Rohingya refugees arrived in Bangladesh in 2017. Many had escaped an attack on their own village, only to watch their relatives being killed in the villages where they had sought safety. The majority of Rohingya who arrived in 2017 remain in the refugee camps. They are denied the right to leave the camps, to work or to seek education."
+      },
+      {
+        "source": "guardian",
+        "headline": "‘Everyone struggled for this justice’: tears in court as Rohingya vindicated in Myanmar genocide ruling",
+        "summary": "More than 10,000 Rohingya were killed and 700,000 fled to neighbouring Bangladesh. The case has taken seven years to reach this point, with Rohingya researchers working to collect testimony from survivors. The court ordered Myanmar to provide reparations for the Rohingya."
+      }
+    ]
+  },
+  {
+    "event_id": 11,
+    "article_count": 2,
+    "sources": [
+      "guardian",
+      "aljazeera"
+    ],
+    "headlines": [
+      "Trump hosts third crypto gala for meme coin amid conflict of interest outcry",
+      "Trump to host private dinner for largest owners of his meme coin"
+    ],
+    "digest": "The gala's access and perks are divided by tiers for the 185 holders of $TRUMP, the president’s meme coin. Since returning to the White House, Trump has made more than $1bn from his crypto businesses.",
+    "source_summaries": [
+      {
+        "source": "guardian",
+        "headline": "Trump hosts third crypto gala for meme coin amid conflict of interest outcry",
+        "summary": "Donald Trump is scheduled to headline his third cryptocurrency gala on Sunday night at his country club in Virginia. The gala's access and perks are divided by tiers for the 185 holders of $TRUMP, the president’s meme coin. Since returning to the White House, Trump has made more than $1bn from his crypto businesses."
+      },
+      {
+        "source": "aljazeera",
+        "headline": "Trump to host private dinner for largest owners of his meme coin",
+        "summary": "Trump to host private dinner for largest owners of his meme coin. Sunday’s dinner is the third private event for top holders of the $Trump meme coin, launched shortly before his second inauguration. Democrats have accused the Republican leader of leveraging his public office for profit in violation of federal law."
+      }
+    ]
+  },
+  {
+    "event_id": 12,
+    "article_count": 2,
+    "sources": [
+      "aljazeera"
+    ],
+    "headlines": [
+      "Pochettino’s nightmare start as Man U thrashed by Liverpool",
+      "Liverpool 4-0 Manchester United: Five key takeaways for Pochettino"
+    ],
+    "digest": "Lenny Yoro sent off in the eighth minute for rash challenge on Alexander Isak. Dominik Szoboszlai, Florian Wirtz and Rio Ngoha scored for the home side. Manchester United remain in the Premier League relegation zone.",
+    "source_summaries": [
+      {
+        "source": "aljazeera",
+        "headline": "Pochettino’s nightmare start as Man U thrashed by Liverpool",
+        "summary": "Pochettino’s nightmare start as Man U thrashed by Liverpool. Manchester United remain in the Premier League relegation zone."
+      },
+      {
+        "source": "aljazeera",
+        "headline": "Liverpool 4-0 Manchester United: Five key takeaways for Pochettino",
+        "summary": "Manchester United lost 4-0 to Liverpool in Mauricio Pochettino's first game in charge. Lenny Yoro was sent off in the eighth minute for a rash challenge on Alexander Isak. Dominik Szoboszlai, Florian Wirtz and Rio Ngoha scored for the home side."
+      }
+    ]
+  }
+]

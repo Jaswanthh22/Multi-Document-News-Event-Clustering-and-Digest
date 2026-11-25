@@ -1,0 +1,17 @@
+flowchart LR
+    F[RSS feeds\nBBC · Guardian · Al Jazeera · NYT · TOI]
+    C[app.py\nFeed parsing + URL de-duplication]
+    E[Trafilatura\nArticle text extraction]
+    A[(articles.json)]
+    M[cluster_headlines.py\nHeadline preprocessing]
+    S[all-MiniLM-L6-v2\nSentence embeddings]
+    K[Agglomerative clustering\nCosine distance = 0.38]
+    G[(clustered_events.json)]
+    Z[summarize_events.py\nPer-article summaries]
+    B[facebook/bart-large-cnn\nBART generation]
+    D[Cross-source digest\nSource summaries combined]
+    O[(news_digest.json)]
+
+    F --> C --> E --> A
+    A --> M --> S --> K --> G
+    G --> Z --> B --> D --> O
