@@ -16,6 +16,7 @@ OUTPUT_FILE = "clustered_events.json"
 # This is a cosine-distance cutoff.  Lower values demand more similar
 # headlines; higher values allow broader event groups.
 DISTANCE_THRESHOLD = 0.38
+_EMBEDDING_MODEL = None
 
 
 def load_articles():
@@ -54,8 +55,11 @@ def cluster_headlines(
     # meanings should occupy nearby positions even when wording differs.
     headlines = [article["title"].strip() for article in articles]
 
+    global _EMBEDDING_MODEL
     print("Loading sentence embedding model...")
-    model = SentenceTransformer("all-MiniLM-L6-v2")
+    if _EMBEDDING_MODEL is None:
+        _EMBEDDING_MODEL = SentenceTransformer("all-MiniLM-L6-v2")
+    model = _EMBEDDING_MODEL
     if progress_callback:
         progress_callback({
             "type": "model",

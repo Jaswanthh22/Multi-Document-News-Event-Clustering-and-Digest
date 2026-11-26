@@ -69,9 +69,37 @@ python cluster_headlines.py
 python summarize_events.py
 ```
 
-## News dashboard
+## Streamlit dashboard
 
-The project includes a dependency-free web dashboard at `frontend/`. It reads
+The main deployable app is [`streamlit_app.py`](streamlit_app.py). It provides
+the frontend and backend workflow in one Streamlit page: the **Start Pipeline**
+button extracts at most six valid headlines, clusters them, and generates
+compact digests while showing each stage's results.
+
+Run it locally:
+
+```bash
+streamlit run streamlit_app.py
+```
+
+### Deploy to Streamlit Community Cloud
+
+1. Push the repository to GitHub, including `streamlit_app.py`,
+   `requirements.txt`, and the three JSON artifacts.
+2. Open <https://share.streamlit.io> and sign in with GitHub.
+3. Click **Create app** → **Yup, I have an app**.
+4. Select repository `Jaswanthh22/Multi-Document-News-Event-Clustering-and-Digest`.
+5. Select branch `main`.
+6. Set the main file path to `streamlit_app.py`.
+7. Choose an app URL and click **Deploy**.
+
+Streamlit Community Cloud reads the dependencies from `requirements.txt` and
+deploys the selected Python entrypoint from GitHub. The first run can take a
+while because the embedding and BART models need to download. [Streamlit deployment guide](https://docs.streamlit.io/deploy/streamlit-community-cloud/deploy-your-app/deploy)
+
+## Legacy HTTP dashboard
+
+The project also includes a dependency-free HTTP dashboard at `frontend/`. It reads
 the three JSON artifacts above through `server.py`, so the UI updates when a
 new pipeline run replaces the files.
 
@@ -85,7 +113,7 @@ Start the dashboard from the project directory:
 python server.py
 ```
 
-Open <http://127.0.0.1:8000>. The dashboard includes:
+Open <http://127.0.0.1:8000>. The legacy dashboard includes:
 
 - pipeline metrics for collected articles, clusters, publishers, and cluster coverage;
 - expandable cross-source event summaries with related headlines and source perspectives;
