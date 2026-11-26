@@ -1,16 +1,8 @@
-"""Streamlit entrypoint for the interactive news event pipeline.
-
-Run locally with:
-
-    streamlit run streamlit_app.py
-
-The app reads the committed JSON snapshot for the initial dashboard and runs a
-bounded six-headline extraction → clustering → digestion pipeline when the
-user presses the Start Pipeline button.
-"""
+"""Streamlit entrypoint for the interactive news event pipeline."""
 
 from __future__ import annotations
 
+import html
 import json
 from pathlib import Path
 
@@ -25,7 +17,6 @@ ROOT = Path(__file__).resolve().parent
 MAX_HEADLINES = 6
 MAX_PER_SOURCE = 2
 
-
 st.set_page_config(
     page_title="Signal — News Event Intelligence",
     page_icon="✦",
@@ -34,8 +25,63 @@ st.set_page_config(
 )
 
 
+# The CSS makes the three pipeline stages visually distinct while leaving
+# Streamlit's native controls, tabs, expanders, and download buttons usable.
+st.markdown(
+    """
+    <style>
+      .stApp { background: #f5f7fb; }
+      [data-testid="stHeader"] { background: rgba(245,247,251,.86); }
+      [data-testid="stAppViewContainer"] .main .block-container {
+        max-width: 1280px; padding: 2.6rem 3rem 5rem;
+      }
+      [data-testid="stSidebar"] { background: #111827; }
+      [data-testid="stSidebar"] * { color: #e8eefc; }
+      .hero { padding: 2.2rem 2.4rem; border-radius: 18px; color: white;
+        background: linear-gradient(125deg,#111827 0%,#213a73 62%,#315efb 100%);
+        box-shadow: 0 18px 50px rgba(32,52,96,.16); }
+      .hero-kicker { margin: 0 0 .8rem; color: #a9c1ff; font: 700 .72rem ui-monospace,monospace;
+        letter-spacing: .14em; text-transform: uppercase; }
+      .hero h1 { margin: 0; font-size: clamp(2.2rem,5vw,4.7rem); line-height: 1.02;
+        letter-spacing: -.06em; }
+      .hero p { max-width: 750px; margin: 1rem 0 0; color: #dbe6ff; font-size: 1.04rem; }
+      .section-kicker { margin: 0 0 .45rem; color: #617086; font: 700 .7rem ui-monospace,monospace;
+        letter-spacing: .13em; text-transform: uppercase; }
+      .section-title { margin: 0 0 .45rem; color: #172033; font-size: 1.65rem; letter-spacing: -.04em; }
+      .section-copy { margin: 0; color: #617086; }
+      .stage-strip { display: grid; grid-template-columns: repeat(3,1fr); gap: .85rem; margin: 1.55rem 0 2rem; }
+      .stage-card { min-height: 112px; padding: 1.1rem 1.2rem; border: 1px solid #dfe5ee;
+        border-radius: 12px; background: #fff; }
+      .stage-card.active { border-color: #315efb; box-shadow: 0 0 0 3px #e9efff; }
+      .stage-card.done { border-color: #9bcdb1; background: #f0fbf4; }
+      .stage-number { color: #315efb; font: 700 .72rem ui-monospace,monospace; }
+      .stage-name { display: block; margin-top: .65rem; color: #172033; font-weight: 700; }
+      .stage-detail { display: block; margin-top: .22rem; color: #617086; font-size: .82rem; }
+      .result-box { margin: .5rem 0 1rem; padding: 1rem 1.15rem; border: 1px solid #dfe5ee;
+        border-radius: 10px; background: #fff; }
+      .source-label { color: #315efb; font: 700 .68rem ui-monospace,monospace;
+        letter-spacing: .08em; text-transform: uppercase; }
+      .headline { margin: .28rem 0 .15rem; color: #172033; font-size: .98rem; font-weight: 650; line-height: 1.35; }
+      .muted-line { color: #617086; font-size: .78rem; }
+      .digest-box { margin: .7rem 0; padding: 1.2rem; border-left: 4px solid #315efb;
+        border-radius: 8px; background: #eef3ff; }
+      .digest-box p { margin: 0; color: #172033; line-height: 1.55; }
+      .topic-label { color: #315efb; font: 700 .72rem ui-monospace,monospace; letter-spacing: .07em; text-transform: uppercase; }
+      .small-note { color: #617086; font-size: .82rem; }
+      div[data-testid="stMetric"] { padding: .75rem .9rem; border: 1px solid #dfe5ee;
+        border-radius: 10px; background: #fff; }
+      @media (max-width: 760px) {
+        [data-testid="stAppViewContainer"] .main .block-container { padding: 1.4rem 1rem 3rem; }
+        .stage-strip { grid-template-columns: 1fr; }
+      }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+
 def load_json(filename, fallback):
-    """Read a committed artifact without breaking the Streamlit page."""
+    """Read a committed JSON artifact without breaking the page."""
 
     try:
         with (ROOT / filename).open(encoding="utf-8") as file:
@@ -80,84 +126,156 @@ def digest_preview(digest):
     }
 
 
-def render_live_results(results, extraction_placeholder, cluster_placeholder, digest_placeholder):
-    """Render the three compact result columns during and after a run."""
+def render_stage_strip(current_stage="idle", progress=0):
+    """Render one stable three-stage strip instead of creating moving sections."""
 
-    with extraction_placeholder.container():
-        st.markdown("**Extracted headlines**")
-        if not results["extracted"]:
-            st.caption("Waiting for valid article text…")
-        for article in results["extracted"]:
-            st.markdown(f"**{article['source']}** — {article['title']}")
-            st.caption(f"{article['text_length']:,} characters extracted")
+    stages = [
+        ("extracting", "01", "Extract", "RSS + article text"),
+        ("clustering", "02", "Cluster", "semantic similarity"),
+        ("digesting", "03", "Digest", "BART summaries"),
+    ]
+    current_index = next((index for index, item in enumerate(stages) if item[0] == current_stage), -1)
+    cards = []
+    for index, (stage, number, name, detail) in enumerate(stages):
+        state_class = "active" if stage == current_stage else "done" if current_index > index or current_stage == "complete" else ""
+        cards.append(
+            f'<div class="stage-card {state_class}">'
+            f'<span class="stage-number">{number} / {"RUNNING" if state_class == "active" else "DONE" if state_class == "done" else "WAITING"}</span>'
+            f'<span class="stage-name">{name}</span><span class="stage-detail">{detail}</span></div>'
+        )
+    st.markdown(f'<div class="stage-strip">{"".join(cards)}</div>', unsafe_allow_html=True)
+    st.progress(min(max(progress, 0), 100))
 
-    with cluster_placeholder.container():
-        st.markdown("**Semantic clusters**")
-        if not results["clusters"]:
-            st.caption("Waiting for headline embeddings…")
-        for cluster in results["clusters"]:
-            st.markdown(
-                f"**Topic {cluster['event_id']}** · "
-                f"{cluster['article_count']} headline(s) · "
-                f"{', '.join(cluster['sources'])}"
-            )
-            for headline in cluster["headlines"]:
-                st.caption(f"• {headline}")
 
-    with digest_placeholder.container():
-        st.markdown("**Digests and source summaries**")
-        if not results["digests"]:
-            st.caption("Waiting for BART summaries…")
-        for digest in results["digests"]:
-            st.markdown(f"**Topic {digest['event_id']}** — {digest['digest']}")
-            with st.expander("Source perspectives", expanded=False):
-                for item in digest["source_summaries"]:
-                    st.markdown(f"**{item['source']}** — {item['summary']}")
+def render_extraction(results):
+    """Show the exact headlines and text lengths accepted by extraction."""
+
+    if not results:
+        st.info("No headlines extracted yet.")
+        return
+    for article in results:
+        with st.container(border=True):
+            left, right = st.columns([5, 1])
+            with left:
+                st.markdown(f'<span class="source-label">{html.escape(article["source"])}</span>', unsafe_allow_html=True)
+                st.markdown(f'<div class="headline">{html.escape(article["title"])}</div>', unsafe_allow_html=True)
+                st.caption(f"{article['text_length']:,} characters extracted")
+            with right:
+                if article.get("url"):
+                    st.link_button("Open source", article["url"], use_container_width=True)
+
+
+def render_clusters(results):
+    """Show each topic as an isolated, readable cluster segment."""
+
+    if not results:
+        st.info("No clusters created yet.")
+        return
+    for cluster in results:
+        source_text = " · ".join(cluster.get("sources", [])) or "source unknown"
+        with st.expander(
+            f"Topic {cluster['event_id']} · {cluster['article_count']} headline(s) · {source_text}",
+            expanded=True,
+        ):
+            for headline in cluster.get("headlines", []):
+                st.markdown(f"• {headline}")
+
+
+def render_digests(results):
+    """Show one digest card followed by collapsible source perspectives."""
+
+    if not results:
+        st.info("No digests created yet.")
+        return
+    for digest in results:
+        st.markdown(
+            f'<div class="digest-box"><span class="topic-label">Topic {digest["event_id"]} · '
+            f'{html.escape(", ".join(digest.get("sources", [])))}</span>'
+            f'<p>{html.escape(digest.get("digest", "Digest is not available."))}</p></div>',
+            unsafe_allow_html=True,
+        )
+        with st.expander("Source perspectives", expanded=False):
+            for item in digest.get("source_summaries", []):
+                st.markdown(f"**{item.get('source', 'unknown')}** — {item.get('summary', '')}")
+
+
+def render_run_results(results):
+    """Place the three output segments into stable tabs."""
+
+    st.markdown('<p class="section-kicker">RUN OUTPUT</p><h2 class="section-title">What the pipeline produced</h2>', unsafe_allow_html=True)
+    extracted_count = len(results.get("extracted", []))
+    cluster_count = len(results.get("clusters", []))
+    digest_count = len(results.get("digests", []))
+    metrics = st.columns(3)
+    metrics[0].metric("Extracted", extracted_count)
+    metrics[1].metric("Clusters", cluster_count)
+    metrics[2].metric("Digests", digest_count)
+
+    extraction_tab, cluster_tab, digest_tab = st.tabs([
+        "01 · Extraction",
+        "02 · Clustering",
+        "03 · Digestion",
+    ])
+    with extraction_tab:
+        render_extraction(results.get("extracted", []))
+    with cluster_tab:
+        render_clusters(results.get("clusters", []))
+    with digest_tab:
+        render_digests(results.get("digests", []))
+
+    st.download_button(
+        "Download this run as JSON",
+        data=json.dumps(results, indent=2, ensure_ascii=False),
+        file_name="interactive_news_run.json",
+        mime="application/json",
+    )
 
 
 def run_interactive_pipeline():
-    """Run the six-headline pipeline synchronously with visible progress."""
+    """Run the bounded pipeline while updating one stable progress area."""
 
     results = {"extracted": [], "clusters": [], "digests": []}
-    progress = st.progress(0)
-    stage_placeholder = st.empty()
-    extraction_placeholder, cluster_placeholder, digest_placeholder = st.columns(3)
+    progress_area = st.empty()
+    stage_area = st.empty()
 
     def extraction_callback(event):
         if event.get("type") == "article":
             results["extracted"].append(article_preview(event["article"]))
-            progress.progress(min(10 + len(results["extracted"]) * 4, 30))
-            with stage_placeholder.container():
+            with stage_area.container():
                 st.info(f"Extracted headline {len(results['extracted'])} of {MAX_HEADLINES}.")
+            with progress_area.container():
+                render_stage_strip("extracting", 10 + len(results["extracted"]) * 4)
         elif event.get("type") == "feed":
-            with stage_placeholder.container():
+            with stage_area.container():
                 st.info(f"Checking {event['source']} RSS feed…")
-        render_live_results(results, extraction_placeholder, cluster_placeholder, digest_placeholder)
 
     def clustering_callback(event):
         if event.get("type") == "model":
-            progress.progress(38)
-            with stage_placeholder.container():
+            with stage_area.container():
                 st.info("Headline embedding model loaded.")
+            with progress_area.container():
+                render_stage_strip("clustering", 38)
         elif event.get("type") == "embedded":
-            progress.progress(48)
-            with stage_placeholder.container():
+            with stage_area.container():
                 st.info(f"Embedded {event['count']} headlines by meaning.")
+            with progress_area.container():
+                render_stage_strip("clustering", 48)
         elif event.get("type") == "clusters":
             results["clusters"] = [cluster_preview(item) for item in event["events"]]
-            progress.progress(55)
-            with stage_placeholder.container():
+            with stage_area.container():
                 st.info(f"Formed {len(results['clusters'])} semantic topic cluster(s).")
-        render_live_results(results, extraction_placeholder, cluster_placeholder, digest_placeholder)
+            with progress_area.container():
+                render_stage_strip("clustering", 55)
 
     def digest_callback(event):
         if event.get("type") == "event_started":
-            progress.progress(60 + round((event["index"] - 1) / max(event["total"], 1) * 35))
-            with stage_placeholder.container():
+            progress_value = 60 + round((event["index"] - 1) / max(event["total"], 1) * 35)
+            with stage_area.container():
                 st.info(f"Digesting topic {event['index']} of {event['total']}…")
+            with progress_area.container():
+                render_stage_strip("digesting", progress_value)
         elif event.get("type") == "digest":
             results["digests"].append(digest_preview(event["digest"]))
-        render_live_results(results, extraction_placeholder, cluster_placeholder, digest_placeholder)
 
     try:
         with st.spinner("Collecting recent headlines…"):
@@ -170,57 +288,45 @@ def run_interactive_pipeline():
         if not articles:
             raise RuntimeError("No valid articles could be extracted from the feeds.")
 
-        with stage_placeholder.container():
+        with stage_area.container():
             st.info(f"Extraction complete: {accepted} valid headline(s). Clustering now…")
-        events = cluster_headlines(
-            articles,
-            keep_singletons=True,
-            progress_callback=clustering_callback,
-        )
+        events = cluster_headlines(articles, keep_singletons=True, progress_callback=clustering_callback)
         if not events:
             raise RuntimeError("The extracted headlines could not be clustered.")
 
-        with stage_placeholder.container():
+        with stage_area.container():
             st.info(f"Clustering complete: {len(events)} topic(s). Digesting now…")
         digests = create_digests(events, progress_callback=digest_callback)
         results["digests"] = [digest_preview(digest) for digest in digests]
-        progress.progress(100)
-        with stage_placeholder.container():
-            st.success(
-                f"Complete — {len(articles)} headline(s), {len(events)} cluster(s), "
-                f"{len(digests)} digest(s)."
-            )
-        render_live_results(results, extraction_placeholder, cluster_placeholder, digest_placeholder)
-        st.download_button(
-            "Download this run as JSON",
-            data=json.dumps(results, indent=2, ensure_ascii=False),
-            file_name="interactive_news_run.json",
-            mime="application/json",
-        )
-        st.session_state["last_run"] = results
+        with progress_area.container():
+            render_stage_strip("complete", 100)
+        with stage_area.container():
+            st.success(f"Complete — {len(articles)} headline(s), {len(events)} cluster(s), {len(digests)} digest(s).")
+        return results
     except Exception as error:
         st.error(f"Pipeline failed: {error}")
         st.exception(error)
+        return None
 
 
 def render_stored_snapshot():
-    """Display the committed JSON snapshot without loading article bodies."""
+    """Display the committed JSON snapshot in a separate section."""
 
     articles = load_json("articles.json", [])
     clusters = load_json("clustered_events.json", [])
     digests = load_json("news_digest.json", [])
     sources = sorted({article.get("source", "unknown") for article in articles})
 
-    st.subheader("Stored snapshot")
+    st.markdown('<p class="section-kicker">COMMITTED DATA</p><h2 class="section-title">Stored snapshot</h2>', unsafe_allow_html=True)
     metrics = st.columns(4)
     metrics[0].metric("Articles", len(articles))
     metrics[1].metric("Clusters", len(clusters))
     metrics[2].metric("Digests", len(digests))
     metrics[3].metric("Sources", len(sources))
-    st.caption("These are the JSON artifacts committed with the deployment.")
-
+    st.caption("This section comes from articles.json, clustered_events.json, and news_digest.json in the repository.")
     for digest in digests:
-        with st.expander(f"Event {digest.get('event_id')} · {digest.get('headlines', ['Untitled'])[0]}"):
+        title = digest.get("headlines", ["Untitled event"])[0]
+        with st.expander(f"Event {digest.get('event_id')} · {title}"):
             st.write(digest.get("digest", "No digest available."))
             for item in digest.get("source_summaries", []):
                 st.caption(f"{item.get('source', 'unknown')}: {item.get('summary', '')}")
@@ -229,30 +335,35 @@ def render_stored_snapshot():
 def main():
     """Build the Streamlit page."""
 
-    st.title("✦ Signal")
-    st.subheader("Multi-Document News Event Clustering and Digest")
-    st.write(
-        "Press the button to collect up to six recent valid headlines, group "
-        "related stories by semantic meaning, and generate concise digests."
+    st.markdown(
+        '<div class="hero"><p class="hero-kicker">GLOBAL NEWS / EVENT INTELLIGENCE</p>'
+        '<h1>From headlines<br>to signal.</h1>'
+        '<p>Collect a small, relevant sample, see the semantic groups form, and read a concise digest for every topic.</p></div>',
+        unsafe_allow_html=True,
     )
 
     with st.sidebar:
-        st.header("How it works")
-        st.markdown("1. **Extract** RSS-linked article text\n2. **Cluster** headline embeddings\n3. **Digest** each topic with BART")
-        st.caption("The interactive run uses at most six headlines and no more than two per publisher.")
-        start = st.button("▶ Start Pipeline", type="primary", use_container_width=True)
+        st.markdown("## Signal")
+        st.caption("Multi-document news event clustering and digest")
+        st.markdown("### Pipeline")
+        st.markdown("**01 · Extract**\n\n**02 · Cluster**\n\n**03 · Digest**")
+        st.caption("Each run uses at most six valid headlines and no more than two per publisher.")
+        start = st.button("▶  Start Pipeline", type="primary", use_container_width=True)
+        st.divider()
+        st.caption("Initial data is read from the committed JSON snapshot. Interactive results are available to download after each run.")
+
+    st.markdown('<p class="section-kicker">LIVE PIPELINE</p><h2 class="section-title">Watch the signal form</h2><p class="section-copy">Press Start Pipeline to run extraction, semantic clustering, and digestion as three separate stages.</p>', unsafe_allow_html=True)
 
     if start:
-        run_interactive_pipeline()
-    elif "last_run" in st.session_state:
-        st.success("Last interactive run")
-        extraction, clustering, digestion = st.columns(3)
-        render_live_results(
-            st.session_state["last_run"],
-            extraction,
-            clustering,
-            digestion,
-        )
+        results = run_interactive_pipeline()
+        if results:
+            st.session_state["last_run"] = results
+
+    if "last_run" in st.session_state:
+        render_run_results(st.session_state["last_run"])
+    else:
+        render_stage_strip()
+        st.info("No interactive run yet. Use the Start Pipeline button in the sidebar.")
 
     st.divider()
     render_stored_snapshot()
