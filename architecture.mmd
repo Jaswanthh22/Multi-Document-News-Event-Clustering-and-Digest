@@ -1,3 +1,4 @@
+%% End-to-end data flow: collection, semantic clustering, and summarization.
 flowchart LR
     F[RSS feeds\nBBC · Guardian · Al Jazeera · NYT · TOI]
     C[app.py\nFeed parsing + URL de-duplication]
@@ -12,6 +13,9 @@ flowchart LR
     D[Cross-source digest\nSource summaries combined]
     O[(news_digest.json)]
 
+    %% Stage 1: collect RSS metadata and extract article text.
     F --> C --> E --> A
+    %% Stage 2: encode headlines and form event clusters.
     A --> M --> S --> K --> G
+    %% Stage 3: summarize each article, then combine summaries.
     G --> Z --> B --> D --> O

@@ -69,6 +69,56 @@ python cluster_headlines.py
 python summarize_events.py
 ```
 
+## News dashboard
+
+The project includes a dependency-free web dashboard at `frontend/`. It reads
+the three JSON artifacts above through `server.py`, so the UI updates when a
+new pipeline run replaces the files.
+
+For interview preparation, open [`viva_guide.html`](viva_guide.html) directly
+in a browser. It explains the architecture, file-by-file behavior, NLP terms,
+parameters, limitations, and likely viva questions with model answers.
+
+Start the dashboard from the project directory:
+
+```bash
+python server.py
+```
+
+Open <http://127.0.0.1:8000>. The dashboard includes:
+
+- pipeline metrics for collected articles, clusters, publishers, and cluster coverage;
+- expandable cross-source event summaries with related headlines and source perspectives;
+- a live article feed with links back to the original stories;
+- source-mix visualization, search, publisher filters, manual refresh, and automatic refresh every 60 seconds.
+
+### Deploy to Render
+
+The repository includes [`render.yaml`](render.yaml) for a single Render Web
+Service. `server.py` serves both `frontend/` and the JSON-backed `/api/data`
+endpoint, so the frontend and backend deploy together without CORS setup.
+
+1. Commit and push the repository, including `articles.json`,
+   `clustered_events.json`, `news_digest.json`, `frontend/`, `server.py`, and
+   `render.yaml`.
+2. In Render, choose **New → Blueprint**, select the GitHub repository, and
+   apply the detected `render.yaml`.
+3. Render runs `pip install -r requirements-render.txt`, starts `python
+   server.py`, checks `/api/health`, and gives the service an `onrender.com`
+   URL.
+
+The deployed service serves the JSON snapshot committed to Git. To refresh the
+data, run the three pipeline scripts locally with the full `requirements.txt`
+dependencies, review the generated JSON, commit the artifacts, and push again.
+For continuously running collection and model inference, use a separate worker
+or scheduled job and persistent storage rather than relying on the web service
+filesystem.
+
+The current pipeline stores its database-like artifacts as `articles.json`,
+`clustered_events.json`, and `news_digest.json`. If those outputs are later
+backed by a database, only the payload builder in `server.py` needs to change;
+the frontend API contract can remain the same.
+
 The first model-based run downloads:
 
 - `all-MiniLM-L6-v2` for headline embeddings

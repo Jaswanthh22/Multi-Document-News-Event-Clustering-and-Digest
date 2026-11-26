@@ -1,10 +1,14 @@
-"""Create a cross-source digest for every multi-article news event."""
+"""Create a cross-source digest for every multi-article news event.
 
-import json
-import os
+This is stage 3.  It performs hierarchical summarization: one summary per
+article first, followed by one summary of the combined source summaries.
+"""
 
-import torch
-from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
+import json  # Reads clustered events and writes digest records.
+import os  # Checks whether the clustering artifact exists.
+
+import torch  # Provides tensor inference and device selection.
+from transformers import AutoModelForSeq2SeqLM, AutoTokenizer  # Loads BART.
 
 
 # The clustering script produces the input for this summarization stage.
@@ -20,18 +24,23 @@ def clean_text(text):
 
 
 def summarize(text, tokenizer, model, device, max_length, min_length):
-    """Generate one deterministic summary using the BART model."""
+    """Generate one deterministic summary using the BART model.
+
+    `max_length` and `min_length` constrain the generated output in tokens.
+    `do_sample=False` makes the same inputs produce repeatable beam-search
+    output under the same model/runtime.
+    """
 
     text = clean_text(text)
 
     if not text:
         return ""
 
-    # Keep the character input reasonably small before tokenizer truncation.
+    # This is a character-level guard before the tokenizer's token-level cap.
     text = text[:5000]
 
     try:
-        # BART accepts at most 1,024 input tokens in this configuration.
+        # Tokenization converts text into model IDs and truncates long inputs.
         inputs = tokenizer(
             text,
             max_length=1024,
@@ -41,7 +50,7 @@ def summarize(text, tokenizer, model, device, max_length, min_length):
 
         inputs = {key: value.to(device) for key, value in inputs.items()}
 
-        # Inference does not need gradients, which reduces memory usage.
+        # Evaluation does not train the model, so gradient tracking is wasteful.
         with torch.no_grad():
             output_ids = model.generate(
                 **inputs,
@@ -55,7 +64,8 @@ def summarize(text, tokenizer, model, device, max_length, min_length):
 
         return tokenizer.decode(output_ids[0], skip_special_tokens=True)
     except Exception as error:
-        # Preserve a short text fallback if a single article cannot be decoded.
+        # One failure should not erase the whole digest.  Keep a readable
+        # excerpt so the event still has content for the dashboard.
         print(f"Could not summarize one article: {error}")
         return text[:500]
 
@@ -74,12 +84,12 @@ def main():
         print("No multi-article events found.")
         return
 
-    # Transformers v5 removed the summarization pipeline, so load BART
-    # directly and call model.generate() below.
+    # Load BART directly because newer Transformers versions removed the old
+    # summarization pipeline task used by earlier versions of this project.
     print("Loading BART summarization model...")
     tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
     model = AutoModelForSeq2SeqLM.from_pretrained(MODEL_NAME)
-    # Use Apple's GPU backend when available; otherwise use the CPU.
+    # Use Apple's GPU backend on supported Macs; otherwise fall back to CPU.
     device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
     model.to(device)
     model.eval()
@@ -90,8 +100,8 @@ def main():
         print(f"Summarizing event {event['event_id']}...")
         source_summaries = []
 
-        # First summarize each source independently so the digest can retain
-        # information that differs between reports.
+        # First summarize each article independently.  Keeping these records
+        # preserves source-level provenance and differing perspectives.
         for article in event["articles"]:
             article_summary = summarize(
                 article.get("text", ""),
@@ -108,7 +118,8 @@ def main():
                 "summary": article_summary,
             })
 
-        # Combining source summaries gives one short cross-source digest.
+        # The second pass compares the compact source summaries and produces
+        # one event-level brief for the dashboard.
         comparison_text = " ".join(
             f"{item['source']} reported: {item['summary']}"
             for item in source_summaries

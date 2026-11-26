@@ -315,5 +315,30 @@
         "summary": "Manchester United lost 4-0 to Liverpool in Mauricio Pochettino's first game in charge. Lenny Yoro was sent off in the eighth minute for a rash challenge on Alexander Isak. Dominik Szoboszlai, Florian Wirtz and Rio Ngoha scored for the home side."
       }
     ]
+  },
+  {
+    "event_id": 13,
+    "article_count": 2,
+    "sources": [
+      "aljazeera",
+      "toi"
+    ],
+    "headlines": [
+      "Netanyahu’s Likud, Eisenkot’s Yashar end coalition talks without deal",
+      "Israel govt formation: Eisenkot, Lieberman join hands in bid to oust Netanyahu"
+    ],
+    "digest": "Netanyahu's Likud and Eisenkot's Yashar end coalition talks without deal. Parties remain split on who will lead the next government and whether far-right minister Itamar Ben-Gvir will join.",
+    "source_summaries": [
+      {
+        "source": "aljazeera",
+        "headline": "Netanyahu’s Likud, Eisenkot’s Yashar end coalition talks without deal",
+        "summary": "Netanyahu's Likud and Eisenkot's Yashar end coalition talks without deal. Parties remain split on who will lead the next government and whether far-right minister Itamar Ben-Gvir will join."
+      },
+      {
+        "source": "toi",
+        "headline": "Israel govt formation: Eisenkot, Lieberman join hands in bid to oust Netanyahu",
+        "summary": "Former Israeli military chief Gadi Eisenkot's Yashar party agreed to a coalition pact with Avigdor Lieberman's right-wing opposition party on Tuesday. It is the first such alliance since last month's election. Efforts to form a government without Prime Minister Benjamin Netanyahu are gathering pace."
+      }
+    ]
   }
 ]

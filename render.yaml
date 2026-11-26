@@ -1,0 +1,10 @@
+# Render Blueprint for the combined frontend + backend dashboard.
+# The precomputed JSON artifacts are served by server.py from the repository.
+services:
+  - type: web
+    name: news-event-digest
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements-render.txt
+    startCommand: python server.py
+    healthCheckPath: /api/health

@@ -1,0 +1,3 @@
+# The deployed dashboard uses only Python's standard library.
+# The full NLP pipeline dependencies are kept in requirements.txt and can be
+# installed separately when regenerating the JSON artifacts.

@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Basic document metadata keeps the dashboard responsive and accessible. -->
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f5f6f2" />
+    <title>Signal — News intelligence</title>
+    <!-- The visual design uses DM Sans for UI text and DM Mono for labels. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <!-- One centered shell contains the header, dashboard content, and footer. -->
+    <div class="shell">
+      <!-- Header: brand, connection status, last update, and manual refresh. -->
+      <header class="topbar">
+        <a class="wordmark" href="/" aria-label="Signal home">
+          <span class="wordmark-mark"><i></i><i></i><i></i></span>
+          <span>signal</span>
+        </a>
+        <div class="topbar-meta">
+          <span class="live-pill"><span class="pulse"></span> live pipeline</span>
+          <span id="last-updated" class="muted">connecting…</span>
+          <button id="refresh-button" class="icon-button" type="button" aria-label="Refresh data" title="Refresh data">
+            <span aria-hidden="true">↻</span>
+          </button>
+        </div>
+      </header>
+
+      <main>
+        <!-- Introductory copy explains the purpose and the three pipeline stages. -->
+        <section class="intro">
+          <div>
+            <p class="eyebrow">GLOBAL NEWS / EVENT INTELLIGENCE</p>
+            <h1>What the world<br /><em>is talking about.</em></h1>
+          </div>
+          <div class="intro-copy">
+            <p>One calm view of the latest stories, the events connecting them, and the signal beneath the noise.</p>
+            <div class="pipeline-line" aria-label="Pipeline stages">
+              <span class="pipeline-node active"><b>01</b> collect</span>
+              <span class="pipeline-connector"></span>
+              <span class="pipeline-node active"><b>02</b> cluster</span>
+              <span class="pipeline-connector"></span>
+              <span class="pipeline-node active"><b>03</b> summarize</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- These cards are populated from /api/data by frontend/app.js. -->
+        <section id="stats" class="stats-grid" aria-label="Pipeline metrics">
+          <article class="stat-card stat-card-accent">
+            <span class="stat-label">stories collected</span>
+            <strong data-stat="article_count">—</strong>
+            <span class="stat-foot">from all sources</span>
+          </article>
+          <article class="stat-card">
+            <span class="stat-label">live event clusters</span>
+            <strong data-stat="event_count">—</strong>
+            <span class="stat-foot">multi-source stories</span>
+          </article>
+          <article class="stat-card">
+            <span class="stat-label">source voices</span>
+            <strong data-stat="source_count">—</strong>
+            <span class="stat-foot">distinct publishers</span>
+          </article>
+          <article class="stat-card stat-card-dark">
+            <span class="stat-label">cluster coverage</span>
+            <strong id="coverage-stat">—</strong>
+            <span class="stat-foot">stories connected</span>
+          </article>
+        </section>
+
+        <!-- Main column contains searchable event clusters; side column contains
+             the latest article feed, publisher counts, and method note. -->
+        <section class="dashboard-grid">
+          <div class="main-column">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">01 / THE SIGNAL</p>
+                <h2>Stories becoming events</h2>
+              </div>
+              <span id="event-count-label" class="count-label">— events</span>
+            </div>
+            <!-- Search and publisher filters only change client-side rendering. -->
+            <div class="filters">
+              <label class="search-box">
+                <span aria-hidden="true">⌕</span>
+                <input id="search-input" type="search" placeholder="Search events or headlines" autocomplete="off" />
+              </label>
+              <div id="source-filters" class="source-filters" aria-label="Filter by source"></div>
+            </div>
+            <!-- JavaScript replaces this loading state with event cards. -->
+            <div id="events-list" class="events-list" aria-live="polite">
+              <div class="loading-state">Loading the latest signal<span class="loading-dots">...</span></div>
+            </div>
+          </div>
+
+          <aside class="side-column">
+            <section class="side-panel feed-panel">
+              <div class="section-heading compact-heading">
+                <div>
+                  <p class="eyebrow">02 / THE FLOW</p>
+                  <h2>Live feed</h2>
+                </div>
+                <span class="live-dot-label"><span class="pulse"></span> now</span>
+              </div>
+              <!-- JavaScript inserts the newest collected articles here. -->
+              <div id="live-feed" class="live-feed">
+                <div class="loading-state">Loading feed<span class="loading-dots">...</span></div>
+              </div>
+            </section>
+
+            <section class="side-panel source-panel">
+              <div class="section-heading compact-heading">
+                <div>
+                  <p class="eyebrow">03 / SOURCE MIX</p>
+                  <h2>Who is reporting</h2>
+                </div>
+              </div>
+              <!-- JavaScript draws simple proportional bars for source counts. -->
+              <div id="source-chart" class="source-chart"></div>
+            </section>
+
+            <section class="method-note">
+              <span class="method-icon">✦</span>
+              <div>
+                <p class="eyebrow">METHOD</p>
+                <p>Related headlines are grouped by semantic similarity, then distilled into one cross-source brief.</p>
+              </div>
+            </section>
+          </aside>
+        </section>
+      </main>
+
+      <footer class="footer">
+        <span>signal / news intelligence</span>
+        <span id="footer-status">waiting for data</span>
+      </footer>
+    </div>
+    <!-- defer waits until HTML parsing is complete before running the UI code. -->
+    <script src="/app.js" defer></script>
+  </body>
+</html>
