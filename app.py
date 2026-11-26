@@ -1,18 +1,18 @@
 """Collect news articles from RSS feeds and save them as JSON.
 
-This is stage 1 of the pipeline.  It deliberately stores the extracted
-article text so later stages do not need to download every page again.
+This module is stage 1 of the pipeline. The collection logic is exposed as a
+function so the web dashboard can run a small interactive collection as well
+as the original full batch collection from the command line.
 """
 
-import json  # Serialises the collected article records to JSON.
-import os  # Kept available for future configurable paths/environment values.
-import time  # Adds a small delay between requests.
+import json  # Serialises collected article records to JSON.
+import time  # Adds a small delay between publisher requests.
 
 import feedparser  # Parses RSS/Atom feeds into Python objects.
 import trafilatura  # Downloads pages and extracts their main article text.
 
+
 # Each key becomes the stable source label stored in every article record.
-# Each value is the RSS endpoint that supplies article links and metadata.
 FEEDS = {
     "bbc": "http://feeds.bbci.co.uk/news/world/rss.xml",
     "guardian": "https://www.theguardian.com/world/rss",
@@ -21,66 +21,130 @@ FEEDS = {
     "toi": "https://timesofindia.indiatimes.com/rssfeeds/296589292.cms",
 }
 
-# The output is intentionally simple and portable: one JSON list on disk.
-# Because this is a relative path, run the script from the project directory.
+# The ordinary batch output remains the same JSON artifact used by the
+# clustering stage and the dashboard's stored-data view.
 OUT = "articles.json"
+MIN_TEXT_LENGTH = 300
 
-# Load the previous dataset first.  This makes later runs append-friendly and
-# lets URL de-duplication work across separate executions of the script.
-try:
-    with open(OUT, encoding="utf-8") as f:
-        articles = json.load(f)
-except (FileNotFoundError, json.JSONDecodeError):
-    # Missing/invalid output is treated as an empty starting dataset rather
-    # than preventing a fresh collection run.
-    articles = []
 
-# A set gives average O(1) membership checks while scanning new feed entries.
-# The URL is used as the article identity in this prototype.
-seen = {a["url"] for a in articles}
-new = 0
+def load_articles():
+    """Load previously collected articles, or return an empty list."""
 
-# Process every configured publisher independently so one failed source does
-# not prevent the other feeds from contributing articles.
-for source, url in FEEDS.items():
-    # feedparser handles the XML parsing and exposes entries as objects with
-    # both attribute-style access and a dictionary-like .get() method.
-    feed = feedparser.parse(url)
-    print(f"{source}: {len(feed.entries)} entries")
-    for entry in feed.entries:
-        # Skip URLs already stored from an earlier run or earlier feed.
-        if entry.link in seen:
-            continue
+    try:
+        with open(OUT, encoding="utf-8") as file:
+            data = json.load(file)
+            return data if isinstance(data, list) else []
+    except (FileNotFoundError, json.JSONDecodeError, OSError):
+        return []
 
-        try:
-            # RSS normally contains a link, not the complete article body.
-            # Trafilatura downloads the page and removes navigation, ads, and
-            # other boilerplate to retain the main readable article text.
-            html = trafilatura.fetch_url(entry.link)
-            text = trafilatura.extract(html) if html else None
-        except Exception as e:
-            # A single broken page should not abort the whole batch.
-            print(f"  failed: {entry.link} ({e})")
-            continue
 
-        # A minimum length removes empty pages, paywall/error pages, and
-        # fragments that would be poor input for summarization later.
-        if text and len(text) > 300:
-            articles.append({
+def _notify(callback, payload):
+    """Send progress data to a caller when a callback was provided."""
+
+    if callback:
+        callback(payload)
+
+
+def collect_articles(
+    max_articles=None,
+    append_existing=True,
+    max_per_source=None,
+    progress_callback=None,
+):
+    """Collect valid article records from the configured RSS feeds.
+
+    ``max_articles`` and ``max_per_source`` are used by the interactive
+    dashboard to keep one run small and reasonably balanced across publishers.
+    """
+
+    previous = load_articles() if append_existing else []
+    articles = list(previous)
+    seen = {article.get("url") for article in articles if article.get("url")}
+    accepted = 0
+    source_counts = {}
+
+    for source, feed_url in FEEDS.items():
+        if max_articles is not None and accepted >= max_articles:
+            break
+
+        feed = feedparser.parse(feed_url)
+        entries = getattr(feed, "entries", [])
+        _notify(progress_callback, {
+            "type": "feed",
+            "source": source,
+            "entry_count": len(entries),
+        })
+
+        for entry in entries:
+            if max_articles is not None and accepted >= max_articles:
+                break
+            if max_per_source is not None and source_counts.get(source, 0) >= max_per_source:
+                break
+
+            # RSS libraries expose entries as mapping-like objects, but some
+            # feeds omit a link; such records cannot be fetched safely.
+            link = entry.get("link", "")
+            if not link or link in seen:
+                continue
+
+            try:
+                # RSS usually provides metadata and a URL, not the full body.
+                # Trafilatura removes navigation, ads, and page boilerplate.
+                html = trafilatura.fetch_url(link)
+                text = trafilatura.extract(html) if html else None
+            except Exception as error:
+                _notify(progress_callback, {
+                    "type": "skipped",
+                    "source": source,
+                    "url": link,
+                    "reason": str(error),
+                })
+                continue
+
+            # Short or empty extraction is usually an error/paywall page and
+            # would be poor input for semantic clustering and summarization.
+            if not text or len(text) <= MIN_TEXT_LENGTH:
+                _notify(progress_callback, {
+                    "type": "skipped",
+                    "source": source,
+                    "url": link,
+                    "reason": "article text was missing or too short",
+                })
+                time.sleep(1)
+                continue
+
+            article = {
                 "source": source,
-                "title": entry.title,
-                "url": entry.link,
+                "title": entry.get("title", "").strip(),
+                "url": link,
                 "published": entry.get("published", ""),
                 "text": text,
-            })
-            seen.add(entry.link)
-            new += 1
+            }
+            if not article["title"]:
+                time.sleep(1)
+                continue
 
-        # Be polite to the publishers and reduce the chance of rate limiting.
-        time.sleep(1)
+            articles.append(article)
+            seen.add(link)
+            source_counts[source] = source_counts.get(source, 0) + 1
+            accepted += 1
+            _notify(progress_callback, {"type": "article", "article": article})
 
-# Persist both old and newly collected records for the next pipeline stage.
-with open(OUT, "w") as f:
-    json.dump(articles, f, indent=2)
+            # Avoid sending requests too quickly to publishers.
+            time.sleep(1)
 
-print(f"Added {new} new articles, total {len(articles)}")
+    return articles, accepted
+
+
+def main():
+    """Run full collection and write the accumulated dataset to JSON."""
+
+    articles, new_count = collect_articles()
+    with open(OUT, "w", encoding="utf-8") as file:
+        json.dump(articles, file, indent=2, ensure_ascii=False)
+
+    print(f"Added {new_count} new articles, total {len(articles)}")
+
+
+if __name__ == "__main__":
+    main()

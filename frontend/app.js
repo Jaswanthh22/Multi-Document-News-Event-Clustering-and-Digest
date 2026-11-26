@@ -1,9 +1,13 @@
 // All mutable UI state lives here so rendering stays predictable.
 const state = {
   data: null,
+  pipeline: null,
   source: "all",
   query: "",
 };
+
+// Only one status poller is needed while the background pipeline is running.
+let pipelinePoller = null;
 
 // Short helper for selecting the first matching DOM element.
 const $ = (selector) => document.querySelector(selector);
@@ -162,6 +166,82 @@ function renderSourceChart() {
   `).join("");
 }
 
+function renderPipelineRun() {
+  // Render the live extraction → clustering → digestion state machine.
+  const pipeline = state.pipeline || {
+    status: "idle",
+    stage: "idle",
+    progress: 0,
+    message: "Press “start a six-headline run” to begin extraction.",
+    extracted: [],
+    clusters: [],
+    digests: [],
+  };
+  const button = $("#run-pipeline-button");
+  const pill = $("#run-status-pill");
+  const fill = $("#run-progress-fill");
+  const stageOrder = ["extracting", "clustering", "digesting", "complete"];
+  const currentIndex = stageOrder.indexOf(pipeline.stage);
+  const running = pipeline.status === "running";
+
+  button.disabled = running;
+  button.innerHTML = running
+    ? "<span aria-hidden=\"true\">◌</span> pipeline running..."
+    : "<span aria-hidden=\"true\">▶</span> start a six-headline run";
+  pill.textContent = pipeline.status === "completed" ? "complete" : pipeline.status;
+  pill.className = `run-status-pill ${pipeline.status}`;
+  fill.style.width = `${pipeline.progress || 0}%`;
+  $("#run-message").textContent = pipeline.message || "Ready.";
+
+  document.querySelectorAll("[data-run-stage]").forEach((node) => {
+    const stageIndex = stageOrder.indexOf(node.dataset.runStage);
+    node.classList.toggle(
+      "active",
+      running && node.dataset.runStage === pipeline.stage,
+    );
+    node.classList.toggle(
+      "complete",
+      pipeline.status === "completed"
+        ? node.dataset.runStage === "complete" || stageIndex < 3
+        : currentIndex > stageIndex && currentIndex >= 0,
+    );
+  });
+
+  const error = $("#run-error");
+  error.hidden = !pipeline.error;
+  error.textContent = pipeline.error ? `Error: ${pipeline.error}` : "";
+
+  const hasResults = pipeline.extracted?.length || pipeline.clusters?.length || pipeline.digests?.length;
+  $("#run-results").hidden = !hasResults;
+  if (!hasResults) return;
+
+  $("#run-extracted").innerHTML = (pipeline.extracted || []).map((article) => `
+    <div class="run-result-item">
+      <span class="run-result-source">${escapeHTML(article.source)}</span>
+      <p class="run-result-title">${escapeHTML(article.title)}</p>
+      <div class="run-result-meta">${article.text_length || 0} characters extracted</div>
+    </div>
+  `).join("");
+
+  $("#run-clusters").innerHTML = (pipeline.clusters || []).map((cluster) => `
+    <div class="run-cluster">
+      <p class="run-cluster-title">Topic ${cluster.event_id} · ${cluster.article_count} headline(s)</p>
+      <ul>${(cluster.headlines || []).map((headline) => `<li>${escapeHTML(headline)}</li>`).join("")}</ul>
+      <div class="run-result-meta">${(cluster.sources || []).map(escapeHTML).join(" · ")}</div>
+    </div>
+  `).join("");
+
+  $("#run-digests").innerHTML = (pipeline.digests || []).map((digest) => `
+    <div class="run-digest">
+      <p class="run-result-meta">Topic ${digest.event_id} · ${(digest.sources || []).map(escapeHTML).join(" · ")}</p>
+      <p class="run-digest-text">${escapeHTML(digest.digest || "Digest is being prepared.")}</p>
+      ${(digest.source_summaries || []).map((item) => `
+        <p class="run-source-summary"><strong>${escapeHTML(item.source)}:</strong> ${escapeHTML(item.summary)}</p>
+      `).join("")}
+    </div>
+  `).join("");
+}
+
 function render() {
   // One render pass keeps all dashboard regions synchronized with state.data.
   renderStats();
@@ -169,6 +249,51 @@ function render() {
   renderEvents();
   renderFeed();
   renderSourceChart();
+  renderPipelineRun();
+}
+
+async function loadPipelineStatus() {
+  // Poll only the small status payload; the main dashboard data remains cached
+  // separately from the interactive run results.
+  try {
+    const response = await fetch(`/api/pipeline/status?ts=${Date.now()}`, { cache: "no-store" });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    state.pipeline = await response.json();
+    renderPipelineRun();
+    if (state.pipeline.status === "running" && !pipelinePoller) {
+      pipelinePoller = setInterval(loadPipelineStatus, 1000);
+    }
+    if (state.pipeline.status !== "running" && pipelinePoller) {
+      clearInterval(pipelinePoller);
+      pipelinePoller = null;
+    }
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+async function startPipeline() {
+  // Start the server-side background job and immediately begin polling it.
+  try {
+    const response = await fetch("/api/pipeline/run", { method: "POST" });
+    state.pipeline = await response.json();
+    renderPipelineRun();
+    if ((response.ok || response.status === 409) && !pipelinePoller) {
+      pipelinePoller = setInterval(loadPipelineStatus, 1000);
+    }
+  } catch (error) {
+    state.pipeline = {
+      status: "error",
+      stage: "error",
+      progress: 0,
+      message: "Could not contact the pipeline server.",
+      error: error.message,
+      extracted: [],
+      clusters: [],
+      digests: [],
+    };
+    renderPipelineRun();
+  }
 }
 
 async function loadData(showLoading = false) {
@@ -200,7 +325,9 @@ $("#search-input").addEventListener("input", (event) => {
 });
 // Manual refresh is useful after running a pipeline stage from the terminal.
 $("#refresh-button").addEventListener("click", () => loadData(true));
+$("#run-pipeline-button").addEventListener("click", startPipeline);
 
 // Initial load followed by one-minute polling for new pipeline artifacts.
 loadData();
+loadPipelineStatus();
 setInterval(() => loadData(), 60000);

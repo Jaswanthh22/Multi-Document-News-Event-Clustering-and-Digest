@@ -19,6 +19,8 @@ from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer  # HTTP se
 from pathlib import Path  # Safe, platform-independent filesystem paths.
 from urllib.parse import urlparse  # Removes query strings from request paths.
 
+from pipeline_runner import get_status, start_pipeline
+
 
 # Resolve paths from this file rather than from the caller's current directory.
 # This means `python /path/to/server.py` still serves the correct project.
@@ -146,6 +148,28 @@ def build_payload() -> dict:
 class DashboardHandler(SimpleHTTPRequestHandler):
     """Serve frontend files and the data endpoint from the project root."""
 
+    def _send_json(self, payload, status=200):
+        """Send a JSON response with explicit no-cache headers."""
+
+        encoded = json.dumps(payload, ensure_ascii=False).encode("utf-8")
+        self.send_response(status)
+        self.send_header("Content-Type", "application/json; charset=utf-8")
+        self.send_header("Cache-Control", "no-store")
+        self.send_header("Content-Length", str(len(encoded)))
+        self.end_headers()
+        self.wfile.write(encoded)
+
+    def do_POST(self):  # noqa: N802 - method name required by BaseHTTPRequestHandler
+        """Start an interactive pipeline when the dashboard button is clicked."""
+
+        path = urlparse(self.path).path
+        if path == "/api/pipeline/run":
+            started, status = start_pipeline()
+            self._send_json(status, status=202 if started else 409)
+            return
+
+        self.send_error(404)
+
     def do_GET(self):  # noqa: N802 - method name required by BaseHTTPRequestHandler
         # Ignore query parameters such as the frontend cache-busting timestamp.
         path = urlparse(self.path).path
@@ -168,6 +192,12 @@ class DashboardHandler(SimpleHTTPRequestHandler):
             self.send_header("Content-Length", str(len(payload)))
             self.end_headers()
             self.wfile.write(payload)
+            return
+
+        if path == "/api/pipeline/status":
+            # The browser polls this small state machine while the background
+            # extraction, clustering, and digestion thread is running.
+            self._send_json(get_status())
             return
 
         # Serve frontend assets without changing the process working directory.

@@ -1,3 +1,4 @@
-# The deployed dashboard uses only Python's standard library.
-# The full NLP pipeline dependencies are kept in requirements.txt and can be
-# installed separately when regenerating the JSON artifacts.
+# The website's Start Pipeline button runs the NLP stages on the server.
+# Reuse the pinned pipeline dependencies so extraction, embeddings, and BART
+# digestion are available in the deployed service.
+-r requirements.txt

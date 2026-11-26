@@ -29,8 +29,13 @@ def load_articles():
         return json.load(file)
 
 
-def cluster_headlines(articles):
-    """Embed headlines, cluster them, and discard singleton clusters.
+def cluster_headlines(
+    articles,
+    min_articles=2,
+    keep_singletons=False,
+    progress_callback=None,
+):
+    """Embed headlines, cluster them, and optionally discard singletons.
 
     The returned event objects retain the original article records so later
     stages still have URLs, dates, sources, and full article text available.
@@ -51,6 +56,11 @@ def cluster_headlines(articles):
 
     print("Loading sentence embedding model...")
     model = SentenceTransformer("all-MiniLM-L6-v2")
+    if progress_callback:
+        progress_callback({
+            "type": "model",
+            "message": "Headline embedding model loaded",
+        })
 
     print("Creating headline embeddings...")
     embeddings = model.encode(
@@ -58,6 +68,8 @@ def cluster_headlines(articles):
         normalize_embeddings=True,
         show_progress_bar=True
     )
+    if progress_callback:
+        progress_callback({"type": "embedded", "count": len(headlines)})
 
     # There is no pair to compare when only one valid article is present.
     if len(articles) == 1:
@@ -114,13 +126,17 @@ def cluster_headlines(articles):
         reverse=True
     )
 
-    # A singleton is not useful as a cross-article event.  Note that this
-    # checks article count, not distinct source count; one publisher could
-    # still contribute both articles to a retained cluster.
-    events = [
-        event for event in events
-        if event["article_count"] >= 2
-    ]
+    # Batch mode keeps the original multi-article contract. Interactive mode
+    # can retain singleton topics so a six-headline run always has digestable
+    # output, while the UI still labels those as single-source topics.
+    if not keep_singletons:
+        events = [
+            event for event in events
+            if event["article_count"] >= min_articles
+        ]
+
+    if progress_callback:
+        progress_callback({"type": "clusters", "events": events})
 
     # Clustering labels are arbitrary, so renumber the retained events for a
     # stable compact presentation in the generated artifact.

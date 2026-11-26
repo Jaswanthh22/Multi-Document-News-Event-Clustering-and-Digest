@@ -15,6 +15,7 @@ from transformers import AutoModelForSeq2SeqLM, AutoTokenizer  # Loads BART.
 INPUT_FILE = "clustered_events.json"
 OUTPUT_FILE = "news_digest.json"
 MODEL_NAME = "facebook/bart-large-cnn"
+_MODEL_CACHE = None
 
 
 def clean_text(text):
@@ -70,19 +71,12 @@ def summarize(text, tokenizer, model, device, max_length, min_length):
         return text[:500]
 
 
-def main():
-    """Summarize each source and then combine the summaries into a digest."""
+def load_summarizer():
+    """Load BART once per server process and reuse it across button runs."""
 
-    if not os.path.exists(INPUT_FILE):
-        print(f"{INPUT_FILE} not found. Run cluster_headlines.py first.")
-        return
-
-    with open(INPUT_FILE, "r", encoding="utf-8") as file:
-        events = json.load(file)
-
-    if not events:
-        print("No multi-article events found.")
-        return
+    global _MODEL_CACHE
+    if _MODEL_CACHE is not None:
+        return _MODEL_CACHE
 
     # Load BART directly because newer Transformers versions removed the old
     # summarization pipeline task used by earlier versions of this project.
@@ -93,11 +87,29 @@ def main():
     device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
     model.to(device)
     model.eval()
+    _MODEL_CACHE = tokenizer, model, device
+    return _MODEL_CACHE
+
+
+def create_digests(events, progress_callback=None):
+    """Summarize each source and then combine the summaries into digests."""
+
+    if not events:
+        return []
+
+    tokenizer, model, device = load_summarizer()
 
     digests = []
 
-    for event in events:
+    for event_index, event in enumerate(events, start=1):
         print(f"Summarizing event {event['event_id']}...")
+        if progress_callback:
+            progress_callback({
+                "type": "event_started",
+                "event_id": event["event_id"],
+                "index": event_index,
+                "total": len(events),
+            })
         source_summaries = []
 
         # First summarize each article independently.  Keeping these records
@@ -142,6 +154,28 @@ def main():
             "digest": digest,
             "source_summaries": source_summaries,
         })
+
+        if progress_callback:
+            progress_callback({"type": "digest", "digest": digests[-1]})
+
+    return digests
+
+
+def main():
+    """Load clustered events, create digests, and write them to JSON."""
+
+    if not os.path.exists(INPUT_FILE):
+        print(f"{INPUT_FILE} not found. Run cluster_headlines.py first.")
+        return
+
+    with open(INPUT_FILE, "r", encoding="utf-8") as file:
+        events = json.load(file)
+
+    if not events:
+        print("No multi-article events found.")
+        return
+
+    digests = create_digests(events)
 
     with open(OUTPUT_FILE, "w", encoding="utf-8") as file:
         json.dump(digests, file, indent=2, ensure_ascii=False)
