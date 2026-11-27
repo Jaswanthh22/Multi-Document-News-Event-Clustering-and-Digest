@@ -32,6 +32,9 @@ st.markdown(
     <style>
       .stApp { background: #f5f6f2; }
       [data-testid="stHeader"] { background: rgba(245,246,242,.86); }
+      /* Streamlit theme defaults can override individual selectors. Force
+         every normal element in the main page to readable true black first. */
+      [data-testid="stAppViewContainer"] .main * { color: #000000 !important; }
       [data-testid="stAppViewContainer"] .main [data-testid="stMarkdownContainer"] p,
       [data-testid="stAppViewContainer"] .main [data-testid="stMarkdownContainer"] li,
       [data-testid="stAppViewContainer"] .main [data-testid="stMarkdownContainer"] strong,
@@ -55,6 +58,8 @@ st.markdown(
         box-shadow: 0 18px 50px rgba(24,32,30,.16); }
       .hero, .hero h1, .hero p, .hero .hero-kicker { color: #ffffff !important; }
       .hero .hero-kicker { color: #d4f34a !important; }
+      .hero * { color: #ffffff !important; }
+      .hero .hero-kicker { color: #d4f34a !important; }
       .hero-kicker { margin: 0 0 .8rem; color: #d4f34a; font: 700 .72rem ui-monospace,monospace;
         letter-spacing: .14em; text-transform: uppercase; }
       .hero h1 { margin: 0; font-size: clamp(2.2rem,5vw,4.7rem); line-height: 1.02;
@@ -70,6 +75,7 @@ st.markdown(
       .stage-card.active { border-color: #91b51b; box-shadow: 0 0 0 3px rgba(212,243,74,.34); }
       .stage-card.done { border-color: #b8c873; background: #f1f7cf; }
       .stage-number { color: #ff765f; font: 700 .72rem ui-monospace,monospace; }
+      .stage-number, .source-label { color: #ff765f !important; }
       .stage-name { display: block; margin-top: .65rem; color: #18201e; font-weight: 700; }
       .stage-detail { display: block; margin-top: .22rem; color: #65706a; font-size: .82rem; }
       .result-box { margin: .5rem 0 1rem; padding: 1rem 1.15rem; border: 1px solid #dfe2db;
@@ -88,6 +94,7 @@ st.markdown(
       div[data-testid="stMetric"] { padding: .75rem .9rem; border: 1px solid #dfe2db;
         border-radius: 10px; background: #fff; }
       button[kind="primary"] { background: #ff765f !important; border-color: #ff765f !important; }
+      button[kind="primary"] * { color: #ffffff !important; }
       button[kind="primary"]:hover { background: #18201e !important; border-color: #18201e !important; }
       button[role="tab"][aria-selected="true"] { color: #18201e !important; border-bottom-color: #ff765f !important; }
       @media (max-width: 760px) {
