@@ -32,6 +32,19 @@ st.markdown(
     <style>
       .stApp { background: #f5f6f2; }
       [data-testid="stHeader"] { background: rgba(245,246,242,.86); }
+      [data-testid="stAppViewContainer"] .main [data-testid="stMarkdownContainer"] p,
+      [data-testid="stAppViewContainer"] .main [data-testid="stMarkdownContainer"] li,
+      [data-testid="stAppViewContainer"] .main [data-testid="stMarkdownContainer"] strong,
+      [data-testid="stAppViewContainer"] .main label,
+      [data-testid="stAppViewContainer"] .main [data-testid="stCaptionContainer"] p,
+      [data-testid="stAppViewContainer"] .main [data-testid="stAlert"] p,
+      [data-testid="stAppViewContainer"] .main button[role="tab"] {
+        color: #18201e !important;
+      }
+      [data-testid="stAppViewContainer"] .main [data-testid="stCaptionContainer"] p,
+      [data-testid="stAppViewContainer"] .main [data-testid="stAlert"] p {
+        color: #18201e !important;
+      }
       [data-testid="stAppViewContainer"] .main .block-container {
         max-width: 1280px; padding: 2.6rem 3rem 5rem;
       }
@@ -40,6 +53,8 @@ st.markdown(
       .hero { padding: 2.2rem 2.4rem; border-radius: 18px; color: white;
         background: linear-gradient(125deg,#18201e 0%,#34453c 62%,#91b51b 100%);
         box-shadow: 0 18px 50px rgba(24,32,30,.16); }
+      .hero, .hero h1, .hero p, .hero .hero-kicker { color: #ffffff !important; }
+      .hero .hero-kicker { color: #d4f34a !important; }
       .hero-kicker { margin: 0 0 .8rem; color: #d4f34a; font: 700 .72rem ui-monospace,monospace;
         letter-spacing: .14em; text-transform: uppercase; }
       .hero h1 { margin: 0; font-size: clamp(2.2rem,5vw,4.7rem); line-height: 1.02;
@@ -61,6 +76,8 @@ st.markdown(
         border-radius: 10px; background: #fff; }
       .source-label { color: #ff765f; font: 700 .68rem ui-monospace,monospace;
         letter-spacing: .08em; text-transform: uppercase; }
+      .source-label { color: #ff765f !important; }
+      .topic-label { color: #91b51b !important; }
       .headline { margin: .28rem 0 .15rem; color: #18201e; font-size: .98rem; font-weight: 650; line-height: 1.35; }
       .muted-line { color: #65706a; font-size: .78rem; }
       .digest-box { margin: .7rem 0; padding: 1.2rem; border-left: 4px solid #ff765f;
