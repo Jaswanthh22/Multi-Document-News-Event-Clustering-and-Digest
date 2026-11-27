@@ -38,6 +38,21 @@ st.markdown(
       /* Current Streamlit versions expose the content container as stMain;
          this is the selector used by the deployed Community Cloud app. */
       [data-testid="stMain"] * { color: #000000 !important; }
+      /* Restore contrast for controls that intentionally have dark/coral
+         backgrounds after the global text rule above. */
+      [data-testid="stMain"] button:not([role="tab"]) {
+        color: #ffffff !important; background: #18201e !important; border-color: #18201e !important;
+      }
+      [data-testid="stMain"] button:not([role="tab"]) * { color: #ffffff !important; }
+      [data-testid="stMain"] button[kind="primary"] {
+        color: #ffffff !important; background: #ff765f !important; border-color: #ff765f !important;
+      }
+      [data-testid="stMain"] button[role="tab"],
+      [data-testid="stMain"] button[role="tab"] * { color: #000000 !important; background: transparent !important; }
+      [data-testid="stMain"] [data-testid="stAlert"] {
+        color: #18201e !important; background: #fff0ec !important; border-left-color: #ff765f !important;
+      }
+      [data-testid="stMain"] [data-testid="stAlert"] * { color: #18201e !important; }
       [data-testid="stAppViewContainer"] .main [data-testid="stMarkdownContainer"] p,
       [data-testid="stAppViewContainer"] .main [data-testid="stMarkdownContainer"] li,
       [data-testid="stAppViewContainer"] .main [data-testid="stMarkdownContainer"] strong,
