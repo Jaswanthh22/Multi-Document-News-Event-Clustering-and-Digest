@@ -35,6 +35,9 @@ st.markdown(
       /* Streamlit theme defaults can override individual selectors. Force
          every normal element in the main page to readable true black first. */
       [data-testid="stAppViewContainer"] .main * { color: #000000 !important; }
+      /* Current Streamlit versions expose the content container as stMain;
+         this is the selector used by the deployed Community Cloud app. */
+      [data-testid="stMain"] * { color: #000000 !important; }
       [data-testid="stAppViewContainer"] .main [data-testid="stMarkdownContainer"] p,
       [data-testid="stAppViewContainer"] .main [data-testid="stMarkdownContainer"] li,
       [data-testid="stAppViewContainer"] .main [data-testid="stMarkdownContainer"] strong,
