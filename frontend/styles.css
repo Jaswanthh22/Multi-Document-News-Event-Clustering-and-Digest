@@ -92,7 +92,7 @@ h1 em { color: var(--coral); font-style: normal; }
 .stat-card-dark .stat-foot { color: #a4ada8; }
 .stat-card strong { font-size: 44px; font-weight: 500; letter-spacing: -.08em; line-height: 1; }
 
-/* Interactive six-headline run and its compact stage-by-stage evidence. */
+/* Interactive twelve-headline run and its compact stage-by-stage evidence. */
 .pipeline-run { margin-bottom: 76px; padding: 25px; border: 1px solid var(--ink); background: var(--white); }
 .run-heading { display: flex; align-items: start; justify-content: space-between; gap: 24px; }
 .run-heading h2 { font-size: 25px; }

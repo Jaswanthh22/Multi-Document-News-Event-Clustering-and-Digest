@@ -13,15 +13,15 @@ import traceback
 from datetime import datetime, timezone
 
 
-MAX_HEADLINES = 6
-MAX_ARTICLES_PER_SOURCE = 2
+MAX_HEADLINES = 12
+MAX_ARTICLES_PER_SOURCE = 3
 
 _LOCK = threading.Lock()
 _STATE = {
     "status": "idle",
     "stage": "idle",
     "progress": 0,
-    "message": "Ready to start a six-headline pipeline run.",
+    "message": "Ready to start a twelve-headline pipeline run.",
     "started_at": None,
     "finished_at": None,
     "error": None,

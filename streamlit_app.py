@@ -14,8 +14,8 @@ from summarize_events import create_digests
 
 
 ROOT = Path(__file__).resolve().parent
-MAX_HEADLINES = 6
-MAX_PER_SOURCE = 2
+MAX_HEADLINES = 12
+MAX_PER_SOURCE = 3
 
 st.set_page_config(
     page_title="Signal — News Event Intelligence",
@@ -392,7 +392,7 @@ def main():
         st.caption("Multi-document news event clustering and digest")
         st.markdown("### Pipeline")
         st.markdown("**01 · Extract**\n\n**02 · Cluster**\n\n**03 · Digest**")
-        st.caption("Each run uses at most six valid headlines and no more than two per publisher.")
+        st.caption("Each run uses at most twelve valid headlines and no more than three per publisher.")
         start = st.button("▶  Start Pipeline", type="primary", use_container_width=True)
         st.divider()
         st.caption("Initial data is read from the committed JSON snapshot. Interactive results are available to download after each run.")

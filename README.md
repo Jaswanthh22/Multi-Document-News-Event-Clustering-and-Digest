@@ -73,7 +73,7 @@ python summarize_events.py
 
 The main deployable app is [`streamlit_app.py`](streamlit_app.py). It provides
 the frontend and backend workflow in one Streamlit page: the **Start Pipeline**
-button extracts at most six valid headlines, clusters them, and generates
+button extracts at most twelve valid headlines, clusters them, and generates
 compact digests while showing each stage's results.
 
 Run it locally:
@@ -119,7 +119,7 @@ Open <http://127.0.0.1:8000>. The legacy dashboard includes:
 - expandable cross-source event summaries with related headlines and source perspectives;
 - a live article feed with links back to the original stories;
 - source-mix visualization, search, publisher filters, manual refresh, and automatic refresh every 60 seconds.
-- a **Start Pipeline** button that runs a bounded six-headline extraction,
+- a **Start Pipeline** button that runs a bounded twelve-headline extraction,
   semantic clustering, and BART digestion job in the background while showing
   progress and compact stage results.
 
@@ -140,7 +140,7 @@ endpoint, so the frontend and backend deploy together without CORS setup.
 
 The deployed service serves the committed JSON snapshot on initial load. The
 dashboard's **Start Pipeline** button can also run a bounded live job using the
-full `requirements.txt` dependencies: it collects at most six valid headlines
+full `requirements.txt` dependencies: it collects at most twelve valid headlines
 from multiple feeds, clusters them, and generates compact digests. The first
 interactive run may take longer because the embedding and BART models must be
 downloaded and loaded. The current interactive results live in server memory;

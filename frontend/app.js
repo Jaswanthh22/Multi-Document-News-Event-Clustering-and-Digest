@@ -172,7 +172,7 @@ function renderPipelineRun() {
     status: "idle",
     stage: "idle",
     progress: 0,
-    message: "Press “start a six-headline run” to begin extraction.",
+    message: "Press “start a twelve-headline run” to begin extraction.",
     extracted: [],
     clusters: [],
     digests: [],
@@ -187,7 +187,7 @@ function renderPipelineRun() {
   button.disabled = running;
   button.innerHTML = running
     ? "<span aria-hidden=\"true\">◌</span> pipeline running..."
-    : "<span aria-hidden=\"true\">▶</span> start a six-headline run";
+    : "<span aria-hidden=\"true\">▶</span> start a twelve-headline run";
   pill.textContent = pipeline.status === "completed" ? "complete" : pipeline.status;
   pill.className = `run-status-pill ${pipeline.status}`;
   fill.style.width = `${pipeline.progress || 0}%`;
